@@ -1,0 +1,94 @@
+
+
+const targetNode = document.querySelector('.captions-text');
+
+if (!targetNode) {
+    console.error('Target node not found.');
+} else {
+    const cp = document.getElementById('cp'); // Declare cp here to avoid undefined error
+
+    if (!cp) {
+        console.error('CP element not found.');
+    } else {
+        cp.style.position = 'absolute';
+        cp.style.zIndex = '90890';
+        cp.style.color = 'red';    
+        cp.style.left = '20vw';
+        cp.style.top = '5vh';
+        cp.style.scale = '9';
+        cp.style.fontWeight = 'bold';  
+    }
+
+    let hasRun = false; // Declare hasRun here to maintain its state
+
+    const observer = new MutationObserver(mutationsList => {
+        for (let mutation of mutationsList) {
+            if (mutation.type === 'childList') {
+                const captionLines = targetNode.querySelectorAll('.caption-visual-line');
+                if (captionLines.length && !hasRun) {
+                    pop();
+                }
+            }
+        }
+    });
+
+    const config = {
+        childList: true,
+        subtree: true
+    };
+
+    observer.observe(targetNode, config);
+
+    function pop() {
+        hasRun = true;
+
+        const lastCaptionLine = targetNode.children[targetNode.children.length - 1];
+        if (!lastCaptionLine) {
+            console.error('Last caption line not found.');
+            return;
+        }
+
+        const latestText = lastCaptionLine.innerText || lastCaptionLine.textContent;
+        if (!latestText) {
+            console.error('Latest text not found.');
+            return;
+        }
+
+        const words = latestText.split(' ');
+        const lastWord = words[words.length - 1];
+        console.log(lastWord, words.length);
+
+        const span = document.createElement('span');
+        span.textContent = lastWord;
+        span.classList.add('animated', 'pulse');
+
+        cp.textContent = '';
+        cp.appendChild(span);
+    }
+}
+
+// Define the pulse animation CSS
+const style = document.createElement('style');
+style.type = 'text/css';
+style.innerHTML = `
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(3.1);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  .pulse {
+    animation: pulse .51s 1;
+  }
+`;
+
+// Append the style to the document head
+document.head.appendChild(style);
+
+// Log a confirmation message
+console.log('Pulse animation added to #cp');
