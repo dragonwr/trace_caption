@@ -1,0 +1,29 @@
+function createSegments() {
+  var mainDiv = document.createElement("div");
+  mainDiv.id = "stage";
+  for (let i = 1; i <= 3; i++) {
+    var segmentDiv = document.createElement("div");
+    segmentDiv.id = `segment${i}`;
+    segmentDiv.classList.add("segment");
+    mainDiv.appendChild(segmentDiv);
+  }
+  document.getElementById("cp_content").appendChild(mainDiv);
+}
+
+function stageOn() {
+  var captionControl2Parent = document.getElementById('ytd-player').parentElement;
+  var cpElement = captionControl2Parent.querySelector("#cp");
+  if (!cpElement) {
+    var cpDiv = document.createElement("div");
+    cpDiv.id = "cp";
+
+    var cpContent = document.createElement("p");
+    cpContent.id = "cp_content";
+    cpContent.textContent = 'nothing so far';
+
+    cpDiv.appendChild(cpContent);
+    captionControl2Parent.insertAdjacentElement('afterbegin', cpDiv);
+  }
+  createSegments();
+}
+stageOn();
