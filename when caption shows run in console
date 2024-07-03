@@ -1,0 +1,42 @@
+// Select the container that holds the caption text lines
+const captionsContainer = document.querySelector('.captions-text'); // Adjust selector to the container holding caption lines
+
+// Configuration for the observer (which mutations to observe)
+const observerConfig = {
+  childList: true,
+  subtree: true,
+  characterData: true
+};
+
+// Callback function to execute when mutations are observed
+const mutationCallback = (mutationsList) => {
+  for (const mutation of mutationsList) {
+    if (mutation.type === 'childList' || mutation.type === 'characterData') {
+      // Get all child elements within the .captions-text container
+      const captionLines = captionsContainer.children;
+      
+      if (captionLines.length > 0) {
+        // Get the last child element
+        const lastCaptionLine = captionLines[captionLines.length - 1];
+        
+        // Get the text content of the last caption line
+        const latestText = lastCaptionLine.innerText || lastCaptionLine.textContent;
+        
+        // Log the inner text of the last child
+        console.log(`Last Caption Line Text: ${latestText}`);
+      }
+    }
+  }
+};
+
+// Create an instance of MutationObserver
+const observer = new MutationObserver(mutationCallback);
+
+// Start observing the container node for configured mutations
+observer.observe(captionsContainer, observerConfig);
+
+// Function to stop the observer (optional)
+function off() {
+  observer.disconnect();
+  console.log('MutationObserver has been cut off.');
+}
