@@ -1,0 +1,116 @@
+var currentArrayIndex = 0;
+var segmentIndex = 0;
+var elementIndex = 0;
+
+// 选择需要观察变动的节点
+var targetNode = document.querySelector('.captions-text');
+
+// 配置观察选项
+var config = {
+  childList: true,
+  subtree: true,
+  characterData: true
+};
+
+// 当观察到变动时执行的回调函数
+var callback = function(mutationsList, observer) {
+  for (var mutation of mutationsList) {
+    if (mutation.type === 'childList') {
+      // 子节点变化（可能是添加或删除）
+      //console.log('A child node has been added or removed.');
+      cap = document.querySelectorAll('.caption-visual-line:last-of-type')[0].textContent.split(' ');
+      console.log(cap[cap.length - 1], ' ')
+      // 获取最新的字幕文本内容
+
+      function later() {
+        total = targetNode.querySelectorAll('.caption-visual-line').length
+//         console.log(total, ' of total now...')
+        // Interval setup to check subtitle content
+        loopSegments(cap);
+
+        function loopSegments(array) {
+          var splitIntoSegments = (array) => {
+            var segmentSize = Math.ceil(array.length / 3);
+            return [
+              array.slice(0, segmentSize),
+              array.slice(segmentSize, segmentSize * 2),
+              array.slice(segmentSize * 2)
+            ];
+          };
+          let arrays = [array];
+          segments = splitIntoSegments(arrays[currentArrayIndex]);
+        }
+
+        jump()
+
+        function jump() {
+
+          // Hide all segments
+          Array.from(stage.childNodes).forEach(miss => {
+            miss.style.display = 'none'
+            //segment.classList.add("removed");
+          });
+          elementIndex++
+
+          // Current segment
+          currentSegment = segments[segmentIndex];
+
+          // Ensure elementIndex is within the bounds of the current segment
+          if (elementIndex < currentSegment.length) {
+            segmentDiv = document.getElementById(`segment${segmentIndex + 1}`);
+            segmentDiv.style.display = "inline-block";
+          }
+
+          wholeLine()
+
+          function wholeLine() {
+            var newSpans = currentSegment.map((item, index) => {
+              var newSpan = document.createElement("span");
+              newSpan.textContent = item;
+              //console.log('issue not equal' + elementIndex + '  ' + index)
+
+              if ([elementIndex].includes(index - 1)) {
+                newSpan.classList.add("show");
+              }
+              return newSpan;
+            });
+            document.getElementById(`segment${segmentIndex + 1}`).innerHTML = "";
+            segmentDiv.append(...newSpans);
+          }
+          // Update speaker talk line
+          if (elementIndex >= currentSegment.length) {
+            elementIndex = 0;
+            segmentIndex++;
+            if (segmentIndex >= segments.length) {
+              segmentIndex = 0;
+              console.log('......')
+              //loopSegments(initialArray);
+
+            }
+          } //loop segment
+
+        }
+      }
+      later()
+
+    } else if (mutation.type === 'characterData') {
+      // 文本节点变化
+      console.log('The character data has changed.');
+    } else if (mutation.type === 'subtree') {
+      // 子树变化
+      console.log('Subtree has changed.');
+    }
+
+    //     end checking the saying length with my flag
+  }
+  //   end mutation 
+};
+
+// 创建一个观察器实例并传入回调函数
+var observer = new MutationObserver(callback);
+
+// 传入目标节点和观察选项
+observer.observe(targetNode, config);
+
+// 如果需要停止观察
+// observer.disconnect(); 
