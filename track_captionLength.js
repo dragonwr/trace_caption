@@ -1,3 +1,4 @@
+off()
 var observer = null;
 var observeInterval = null;
 var lastFullCaption = '';
@@ -71,45 +72,22 @@ function processCaption(container) {
     subway.style = 'color:pink;padding:0 .113em;';
     cp_content.appendChild(subway);
 
-    var cpContentElement = document.getElementById('cp_content');
-    var cpContentWords = cpContentElement.innerText.split(/\s+/);
-
     // Check if cp_content inner text length exceeds 10
-    if (cpContentWords.length > 10) {
+    var cpContentElement = document.getElementById('cp_content');
+    if (cpContentElement.children.length > 20) {
       cpContentElement.textContent = '';
-      // Recalculate the length after clearing
-      cpContentWords = cpContentElement.innerText.split(/\s+/);
-      console.log('cp_content length after clearing:', cpContentWords.length);
     }
 
-    var rolling = container.classList.contains('ytp-rollup-mode');
-    if (rolling) {
-      setTimeout(function() {
-        cpContentElement.textContent = '';
-        // Recalculate the length after clearing
-        cpContentWords = cpContentElement.innerText.split(/\s+/);
-        console.log('cp_content length after clearing in rollup mode:', cpContentWords.length);
-      }, 80);
-    }
+ 
 
     // Track en_caption text length
     if (enCaptionElement) {
-      var enCaptionLength = enCaptionText.split(/\s+/).length;
-      var cpContentLength = cpContentElement.innerText.split(/\s+/).length;
+      var enCaptionLength = enCaptionText.split(' ').length;
       console.log('Length of en_caption inner text:', enCaptionLength);
-      console.log('Length of cp_content inner text:', cpContentLength);
-
-      // Log a message if en_caption text length is the same as cp_content text length
-      if (enCaptionLength === cpContentLength) {
-        console.log('en_caption and cp_content have the same length.');
-      }
 
       // Clear cp_content if enCaption text length is the same
-      if (enCaptionLength === cpContentLength) {
+      if (cpContentElement && enCaptionLength === cpContentElement.children.length) {
         cpContentElement.textContent = '';
-        // Recalculate the length after clearing
-        cpContentLength = cpContentElement.innerText.split(/\s+/).length;
-        console.log('cp_content length after clearing due to en_caption length match:', cpContentLength);
       }
     }
   }
@@ -122,7 +100,7 @@ function updateCaptionHistory(caption) {
   captionHistory.push(caption);
 }
 
-function stopObservingCaptions() {
+function off() {
   if (observer) {
     observer.disconnect();
     observer = null;
