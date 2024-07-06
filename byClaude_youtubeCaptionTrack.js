@@ -37,6 +37,20 @@ function observeCaptions() {
     }
   }, 5000);
 }
+// Get the parent element of the player
+var captionControl2Parent = document.getElementById('ytd-player').parentElement;
+
+// Create or select the container for the caption text
+var cpElement = captionControl2Parent.querySelector("#cp");
+if (!cpElement) {
+  var cpDiv = document.createElement("div");
+  cpDiv.id = "cp";
+
+  var cpContent = document.createElement("p");
+  cpContent.id = "cp_content";
+  cpDiv.appendChild(cpContent);
+  captionControl2Parent.insertAdjacentElement('afterbegin', cpDiv);
+}
 
 function processCaption(container) {
   const captionText = container.innerText.trim().replace(/\n/g, ' ');
@@ -46,7 +60,18 @@ function processCaption(container) {
     const words = captionText.split(/\s+/);
     const lastWord = words[words.length - 1];
     console.log('Last word:', lastWord);
-    console.log('Full caption:', captionText);
+            var subway = document.createElement('span');
+    subway.textContent=lastWord;
+    subway.classList.add('pickle')
+    subway.style='color:pink;padding:0 .113em;'
+            cp_content.appendChild(subway)
+          var rolling = captionWindow.classList.contains('ytp-rollup-mode');
+    if(rolling){
+ let timeoutId = setTimeout(function() {
+            cp_content.remove();
+          }, 80);
+    }
+    //console.log('Full caption:', captionText);
   }
 }
 
