@@ -60,11 +60,12 @@ function processCaption(container) {
     const words = captionText.split(/\s+/);
     const lastWord = words[words.length - 1];
     console.log('Last word:', lastWord);
-            var subway = document.createElement('span');
+    
+    var subway = document.createElement('span');
     subway.textContent=lastWord;
     subway.classList.add('pickle')
     subway.style='color:pink;padding:0 .113em;'
-            cp_content.appendChild(subway)
+    cp_content.appendChild(subway)
           var rolling = captionWindow.classList.contains('ytp-rollup-mode');
     if(rolling){
  let timeoutId = setTimeout(function() {
