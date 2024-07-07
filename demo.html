@@ -1,1 +1,316 @@
 /* words flying as each lines updating*/
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Animated Caption Demo with Random Fly-out</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a, #2c3e50);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        #caption-container {
+            width: 90%;
+            max-width: 800px;
+            border: 3px solid #ff69b4;
+            border-radius: 15px;
+            text-align: center;
+            background: rgba(26, 26, 26, 0.8);
+            box-shadow: 0 0 20px rgba(255, 105, 180, 0.3);
+            padding: 20px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            perspective: 1000px;
+        }
+
+        #cp,.fly-out {
+            display: inline-block;
+            color: #ff69b4;
+            padding: 0 0.113em;
+            font-size: 1.42em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        #cp span {
+            padding: 0 0.21em;
+            display: inline-block;
+        }
+
+        #cp_content {
+            display: inline-block;
+            min-height: 1.2em;
+        }
+
+        #pt_2 {
+            opacity: 0.6;
+            display: inline-block;
+            margin-top: 10px;
+            font-style: italic;
+            min-height: 1.2em;
+        }
+
+        .pickle {
+            display: inline-block;
+            animation: popIn var(--animation-duration, 1.25383s) ease-in-out 1;
+            transition: all 0.3s ease;
+        }
+
+        .pickle:hover {
+            transform: scale(1.1);
+            color: #00ffff;
+        }
+
+        .remaining-word {
+            display: inline-block;
+            opacity: 0.4;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .remaining-word:hover {
+            opacity: 1;
+            transform: scale(1.05);
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0) translateY(20px);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.21382) translateY(-0.1382em) rotate(4deg);
+                padding: 0 0.5472em;
+            }
+            75% {
+                transform: scale(0.9) translateY(5px) rotate(-2deg);
+            }
+            100% {
+                transform: scale(1) translateY(0) rotate(0);
+            }
+        }
+
+        .fly-out {
+          font-size:2em;
+          transition:1.3s;
+            position: absolute;
+            animation: flyOut 1s ease-in forwards;
+        }
+
+        @keyframes flyOut {
+            to {
+                transform: translate(var(--tx), var(--ty)) rotate(var(--rotate));
+                opacity: 0;
+            }
+        }
+
+        #controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        button, select {
+            background-color: #ff69b4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover, select:hover {
+            background-color: #ff1493;
+        }
+
+        #speed-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #speed-slider {
+            width: 100px;
+        }
+    </style>
+</head>
+<body>
+    <div id="caption-container">
+        <div id="cp">
+            <p id="cp_content"></p>
+            <p id="pt_2"></p>
+        </div>
+    </div>
+
+    <div id="controls">
+        <button id="pause-resume">Pause</button>
+        <div id="speed-control">
+            <label for="speed-slider">Speed:</label>
+            <input type="range" id="speed-slider" min="0.5" max="2" step="0.1" value="1">
+            <span id="speed-value">1x</span>
+        </div>
+        <select id="theme-selector">
+            <option value="default">Default Theme</option>
+            <option value="neon">Neon Theme</option>
+            <option value="pastel">Pastel Theme</option>
+        </select>
+    </div>
+
+    <script>
+        var observer = null;
+        var observeInterval = null;
+        var lastFullCaption = '';
+        var captionHistory = [];
+        var MAX_HISTORY = 10;
+        var spokenWords = [];
+        var isPaused = false;
+        var currentSpeed = 1.8;
+        var currentTheme = 'default';
+
+        const captions = [
+            "Welcome to our interactive animated caption demo!",
+            "Watch as words fly out in random directions.",
+            "You can control the animation speed.",
+            "Pause and resume the animation at any time.",
+            "Try changing the color theme for a new look.",
+            "This creates a dynamic and unpredictable experience.",
+            "Perfect for catching attention in presentations!"
+        ];
+
+        let currentCaptionIndex = 0;
+        let currentWordIndex = 0;
+
+        function displayNextWord() {
+            if (isPaused) return;
+
+            if (currentCaptionIndex >= captions.length) {
+                currentCaptionIndex = 0;
+                currentWordIndex = 0;
+                document.getElementById('cp_content').innerHTML = '';
+                document.getElementById('pt_2').innerHTML = '';
+                spokenWords = [];
+            }
+
+            const words = captions[currentCaptionIndex].split(' ');
+            if (currentWordIndex < words.length) {
+                const word = words[currentWordIndex];
+                const span = document.createElement('span');
+                span.textContent = word + ' ';
+                span.classList.add('pickle');
+                document.getElementById('cp_content').appendChild(span);
+                spokenWords.push(word);
+                currentWordIndex++;
+
+                updateRemainingWords(captions[currentCaptionIndex], spokenWords);
+            } else {
+                flyOutWords();
+                currentCaptionIndex++;
+                currentWordIndex = 0;
+            }
+
+            setTimeout(displayNextWord, 500 / currentSpeed);
+        }
+
+        function flyOutWords() {
+            const words = document.querySelectorAll('#cp_content .pickle');
+            words.forEach((word, index) => {
+                const clone = word.cloneNode(true);
+                clone.style.position = 'absolute';
+                clone.style.left = word.offsetLeft + 'px';
+                clone.style.top = word.offsetTop + 'px';
+                clone.classList.add('fly-out');
+                
+                const tx = (Math.random() - 0.5) * 300;
+                const ty = (Math.random() - 0.5) * 300;
+                const rotate = (Math.random() - 0.5) * 720;
+                
+                clone.style.setProperty('--tx', `${tx}px`);
+                clone.style.setProperty('--ty', `${ty}px`);
+                clone.style.setProperty('--rotate', `${rotate}deg`);
+                
+                document.getElementById('caption-container').appendChild(clone);
+                
+                setTimeout(() => {
+                    clone.remove();
+                }, 1500);
+            });
+
+            setTimeout(() => {
+                document.getElementById('cp_content').innerHTML = '';
+                document.getElementById('pt_2').innerHTML = '';
+                spokenWords = [];
+            }, 100);
+        }
+
+        function updateRemainingWords(fullText, spokenWords) {
+            var pt2Element = document.getElementById('pt_2');
+            pt2Element.innerHTML = '';
+
+            var fullWords = fullText.split(/\s+/);
+            var remainingWords = fullWords.slice(spokenWords.length);
+
+            remainingWords.forEach(word => {
+                var span = document.createElement('span');
+                span.textContent = word + ' ';
+                span.classList.add('remaining-word');
+                pt2Element.appendChild(span);
+            });
+        }
+
+        function togglePauseResume() {
+            isPaused = !isPaused;
+            const button = document.getElementById('pause-resume');
+            button.textContent = isPaused ? 'Resume' : 'Pause';
+            if (!isPaused) {
+                displayNextWord();
+            }
+        }
+
+        function changeSpeed() {
+            currentSpeed = parseFloat(document.getElementById('speed-slider').value);
+            document.getElementById('speed-value').textContent = currentSpeed.toFixed(1) + 'x';
+            document.documentElement.style.setProperty('--animation-duration', (1.25383 / currentSpeed) + 's');
+        }
+
+        function changeTheme() {
+            currentTheme = document.getElementById('theme-selector').value;
+            switch (currentTheme) {
+                case 'neon':
+                    document.body.style.background = 'linear-gradient(135deg, #000, #0a0a0a)';
+                    document.getElementById('cp').style.color = '#0ff';
+                    document.getElementById('caption-container').style.borderColor = '#0ff';
+                    break;
+                case 'pastel':
+                    document.body.style.background = 'linear-gradient(135deg, #f5e5e5, #e5f5e5)';
+                    document.getElementById('cp').style.color = '#8b4b8b';
+                    document.getElementById('caption-container').style.borderColor = '#8b4b8b';
+                    break;
+                default:
+                    document.body.style.background = 'linear-gradient(135deg, #1a1a1a, #2c3e50)';
+                    document.getElementById('cp').style.color = '#ff69b4';
+                    document.getElementById('caption-container').style.borderColor = '#ff69b4';
+            }
+        }
+
+        // Event listeners
+        document.getElementById('pause-resume').addEventListener('click', togglePauseResume);
+        document.getElementById('speed-slider').addEventListener('input', changeSpeed);
+        document.getElementById('theme-selector').addEventListener('change', changeTheme);
+
+        // Start the caption simulation
+        displayNextWord();
+    </script>
+</body>
+</html>
