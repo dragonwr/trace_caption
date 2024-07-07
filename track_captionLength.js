@@ -49,8 +49,11 @@ if (!cpElement) {
   cpDiv.id = "cp";
 
   var cpContent = document.createElement("p");
+  var partTwo = document.createElement("p");
+  partTwo.id='pt_2'
   cpContent.id = "cp_content";
   cpDiv.appendChild(cpContent);
+  cpDiv.appendChild(partTwo);
   captionControl2Parent.insertAdjacentElement('afterbegin', cpDiv);
 }
 
