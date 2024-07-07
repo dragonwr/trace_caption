@@ -78,8 +78,7 @@ function processCaption(container) {
     subway.classList.add('pickle');
     subway.style = 'color:pink;padding:0 .113em;';
     cp_content.appendChild(subway);
-    hr = true;
-    // Check for .ytp-rollup-mode in the caption container
+     // Check for .ytp-rollup-mode in the caption container
     if (container.classList.contains('ytp-rollup-mode')) {
       var cpContentElement = document.getElementById('cp_content');
 
