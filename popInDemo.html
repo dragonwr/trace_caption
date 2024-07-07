@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animated Caption Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+      #cp{
+        display: inline-block;
+            color: #ff69b4;
+            padding: 0 0.113em;
+        font-size:1.52em;
+      }
+      #cp span{
+        padding:0 .21em;
+        display:inline-block;
+      }
+        #caption-container {
+            width: 80%;
+            max-width: 800px;
+          border:3px solid;
+            text-align: center;
+        }
+        #cp_content {
+          display:inline-block;
+        }
+        #pt_2 {
+            opacity: 0.6;
+          display:inline-block;
+        }
+        .pickle {
+            display:inline-block;
+            animation: popIn 1.25383s ease-in 1;
+            animation: popIn 1.25383s ;
+        }
+        .remaining-word {
+            display: inline-block;
+            opacity: 0.4;
+            transition: opacity 0.3s ease;
+        }
+        .remaining-word:hover {
+            opacity: 1;
+        }
+        @keyframes popIn {
+             50% { transform: scale(1.21382) translateY(-.1382em) rotate(4deg); 
+          padding:0 .5472em;
+          }
+         }
+    </style>
+</head>
+<body>
+    <div id="caption-container">
+        <div id="cp">
+            <p id="cp_content"></p>
+            <p id="pt_2"></p>
+        </div>
+    </div>
+
+    <script>
+        var observer = null;
+        var observeInterval = null;
+        var lastFullCaption = '';
+        var captionHistory = [];
+        var MAX_HISTORY = 10;
+        var spokenWords = [];
+
+        function simulateCaptions() {
+            const captions = [
+                "Welcome to our animated caption demo!",
+                "Watch as each word pops into view.",
+                "The remaining words fade in below.",
+                "Hover over them to see them more clearly.",
+                "This creates an engaging visual experience.",
+                "Perfect for presentations or educational content!"
+            ];
+
+            let currentCaptionIndex = 0;
+            let currentWordIndex = 0;
+
+            function displayNextWord() {
+                if (currentCaptionIndex >= captions.length) {
+                    return;
+                }
+
+                const words = captions[currentCaptionIndex].split(' ');
+                if (currentWordIndex < words.length) {
+                    const word = words[currentWordIndex];
+                    const span = document.createElement('span');
+                    span.textContent = word + ' ';
+                    span.classList.add('pickle');
+                    document.getElementById('cp_content').appendChild(span);
+                    spokenWords.push(word);
+                    currentWordIndex++;
+
+                    updateRemainingWords(captions[currentCaptionIndex], spokenWords);
+                    console.log('Spoken words length:', spokenWords.length);
+                } else {
+                    currentCaptionIndex++;
+                    currentWordIndex = 0;
+                    document.getElementById('cp_content').innerHTML = '';
+                    document.getElementById('pt_2').innerHTML = '';
+                    spokenWords = [];
+                }
+
+                setTimeout(displayNextWord, 500);
+            }
+
+            displayNextWord();
+        }
+
+        function updateRemainingWords(fullText, spokenWords) {
+            var pt2Element = document.getElementById('pt_2');
+            pt2Element.innerHTML = '';
+
+            var fullWords = fullText.split(/\s+/);
+            var remainingWords = fullWords.slice(spokenWords.length);
+
+            remainingWords.forEach(word => {
+                var span = document.createElement('span');
+                span.textContent = word + ' ';
+                span.classList.add('remaining-word');
+                pt2Element.appendChild(span);
+            });
+        }
+
+        // Start the caption simulation
+        simulateCaptions();
+    </script>
+</body>
+</html>
