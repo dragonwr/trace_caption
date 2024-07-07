@@ -1,7 +1,5 @@
-// Styles
 var newLook = `
 <style>
- 
   #cp {
     top: 80px;
     max-width: 800px;
@@ -29,7 +27,15 @@ var newLook = `
   .remaining-word:hover {
     opacity: 1;
   }
- 
+  
+  @keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+  
+  .fade-out {
+    animation: fadeOut 0.225s ease-out forwards;
+  }
 </style>
 `;
 
@@ -43,38 +49,8 @@ var captionHistory = [];
 var spokenWords = [];
 var MAX_HISTORY = 10;
 
-function observeCaptions() {
-  if (observer) {
-    console.log('Already observing captions.');
-    return;
-  }
-  var captionsContainer = document.querySelector('.caption-window');
-  if (!captionsContainer) {
-    console.error('Captions container not found. Will retry in 5 seconds.');
-    setTimeout(observeCaptions, 5000);
-    return;
-  }
-  var callback = function(mutationsList) {
-    for (var mutation of mutationsList) {
-      if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-        processCaption(captionsContainer);
-      }
-    }
-  };
-  observer = new MutationObserver(callback);
-  observer.observe(captionsContainer, {
-    childList: true,
-    subtree: true
-  });
-  console.log('Started observing captions.');
-  observeInterval = setInterval(function() {
-    if (!document.querySelector('.caption-window, .ytp-caption-window-container')) {
-      console.log('Captions container lost. Restarting observation.');
-      stopObservingCaptions();
-      observeCaptions();
-    }
-  }, 5000);
-}
+
+function observeCaptions() {}
 
 // Get the parent element of the player
 var captionControl2Parent = document.getElementById('ytd-player').parentElement;
@@ -114,60 +90,45 @@ function processCaption(container) {
 
     console.log('Spoken words length:', spokenWords.length);
 
-
-
     // Update remaining words
     updateRemainingWords(enCaptionText, spokenWords);
 
     // Track en_caption text length
-      var enCaptionLength = enCaptionText.split(' ').length;
-      console.log('Length of en_caption inner text:', enCaptionLength);
+    var enCaptionLength = enCaptionText.split(' ').length;
+    console.log('Length of en_caption inner text:', enCaptionLength);
 
-      // Check for .ytp-rollup-mode in the caption container
-      if (container.classList.contains('ytp-rollup-mode')) {
+    // Check for .ytp-rollup-mode in the caption container
+    if (container.classList.contains('ytp-rollup-mode')) {
+      var cpContentElement = document.getElementById('cp_content');
+      timeId = setTimeout(quitAgain, 50)
+
+      function quitAgain() {
         var cpContentElement = document.getElementById('cp_content');
-        timeId = setTimeout(quitAgain, 200)
+        var pt2Element = document.getElementById('pt_2');
+        if (cpContentElement && pt2Element) {
+          // Add fade-out animation
+          cpContentElement.classList.add('fade-out');
+          pt2Element.classList.add('fade-out');
 
-        function quitAgain() {
-          var cpContentElement = document.getElementById('cp_content');
-          if (cpContentElement) {
-
-            document.getElementById('pt_2').textContent = '';
+          // Clear content and reset after animation
+          setTimeout(() => {
+            pt2Element.textContent = '';
             spokenWords = [];
             cpContentElement.textContent = '';
-          }
-          // Clear the timeout if it's set
-          if (timeId) {
-            clearTimeout(timeId);
-            timeId = null;
-          }
+            cpContentElement.classList.remove('fade-out');
+            pt2Element.classList.remove('fade-out');
+          }, 500); // 500ms matches the animation duration
+        }
+        // Clear the timeout if it's set
+        if (timeId) {
+          clearTimeout(timeId);
+          timeId = null;
         }
       }
-//       checked ytp-rollup-mode
+    }
   }
 }
 
-function updateRemainingWords(fullText, spokenWords) {
-  var pt2Element = document.getElementById('pt_2');
-  pt2Element.innerHTML = '';
-
-  var fullWords = fullText.split(/\s+/);
-  var remainingWords = fullWords.slice(spokenWords.length);
-
-  remainingWords.forEach(word => {
-    var span = document.createElement('span');
-    span.textContent = word + ' ';
-    span.classList.add('remaining-word');
-    pt2Element.appendChild(span);
-  });
-}
-
-function updateCaptionHistory(caption) {
-  if (captionHistory.length >= MAX_HISTORY) {
-    captionHistory.shift();
-  }
-  captionHistory.push(caption);
-}
 
 var timeId = null; // Declare timeId globally
 
@@ -189,7 +150,6 @@ function off() {
     timeId = null;
   }
 }
-
 function getCaptionHistory() {
   return captionHistory;
 }
@@ -198,4 +158,4 @@ function getFullTranscript() {
   return captionHistory.join(' ');
 }
 
-observeCaptions();
+observeCaptions(); 
