@@ -14,7 +14,7 @@ function oC() {
   var captionsContainer = document.querySelector('.caption-window');
   if (!captionsContainer) {
     console.error('Captions container not found. Will retry in 5 seconds.');
-    setTimeout(observeCaptions, 5000);
+    setTimeout(oC, 5000);
     return;
   }
 
@@ -38,7 +38,7 @@ function oC() {
     if (!document.querySelector('.caption-window, .ytp-caption-window-container')) {
       console.log('Captions container lost. Restarting observation.');
       stopObservingCaptions();
-      observeCaptions();
+      oC();
     }
   }, 5000);
 }
