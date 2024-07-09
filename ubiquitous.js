@@ -1,8 +1,6 @@
 var newLook = `
 <style>
   #cp {
-    top: 80px;
-    max-width: 800px;
     background-color: rgba(0, 0, 0, 0.7);
     color: #fff;
     padding: 10px;
@@ -10,31 +8,16 @@ var newLook = `
     z-index: 9999;
     font-family: Arial, sans-serif;
   }
-  #cp_content {
-    margin-bottom: 10px;
-    display: inline-block;
-  }
   #pt_2 {
-    font-size: 1.2em;
     opacity: 0.6;
     display: inline-block;
   }
-  
   .remaining-word {
     display: inline-block;
     transition: opacity 0.3s ease;
   }
   .remaining-word:hover {
     opacity: 1;
-  }
-  
-  @keyframes fadeOut {
-    from { opacity: 1; }
-    to { opacity: 0; }
-  }
-  
-  .fade-out {
-    animation: fadeOut 0.225s ease-out forwards;
   }
 </style>
 `;
@@ -100,7 +83,7 @@ function processCaption(container) {
     // Check for .ytp-rollup-mode in the caption container
     if (container.classList.contains('ytp-rollup-mode')) {
       var cpContentElement = document.getElementById('cp_content');
-      timeId = setTimeout(quitAgain, 50)
+      timeId = setTimeout(quitAgain, 150)
 
       function quitAgain() {
         var cpContentElement = document.getElementById('cp_content');
@@ -117,7 +100,7 @@ function processCaption(container) {
             cpContentElement.textContent = '';
             cpContentElement.classList.remove('fade-out');
             pt2Element.classList.remove('fade-out');
-          }, 500); // 500ms matches the animation duration
+          }, 150); // 500ms matches the animation duration
         }
         // Clear the timeout if it's set
         if (timeId) {
