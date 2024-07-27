@@ -1,5 +1,4 @@
-//                  cpContent.innerHTML = ''
-
+cpContent.innerHTML = ''
 off()
 var captionControl2Parent = document.getElementById('ytd-player').parentElement;
 
@@ -31,12 +30,19 @@ var mutationCallback = function(mutationsList) {
     if (mutation.type === 'childList' || mutation.type === 'characterData') {
       // Get all child elements within the .captions-text container
       captionLines = captionsContainer.children;
-
+      isRoll = document.querySelector('#caption-window-1').classList.contains('ytp-rollup-mode')
       if (!hr) {
         hr = true
         // Get the last child element
-        lastCaptionLine = captionLines[captionLines.length - 1];
+        if (!isRoll) {
+          lastCaptionLine = captionLines[captionLines.length - 1];
 
+        }
+        if (isRoll) {
+          ifRoll = false
+          lastCaptionLine = captionLines[captionLines.length - 1];
+
+        }
         // Get the text content of the last caption line
         var latestText = lastCaptionLine.innerText || lastCaptionLine.textContent;
         var firstPart = []
@@ -55,24 +61,29 @@ var mutationCallback = function(mutationsList) {
         wrappedText = wrappedText.join(' ');
         // Log the inner text of the last child
 
-        //   console.log(firstPart, `  ${wrappedText}  `);
         let lp = document.createElement('span');
         lp.innerHTML = wrappedText
 
         let fp = document.createElement('span')
         fp.classList.add('pickle')
-        fp.innerHTML = latestText.split(' ')[latestText.split(' ').length - 1] + ' '
+        fp.innerHTML = latestText.split(' ')[latestText.split(' ').length - 1]
+
         cpContent.appendChild(fp)
         document.querySelectorAll('.onion').forEach(element => element.remove());
         cpContent.appendChild(lp)
         isRoll = document.querySelector('#caption-window-1').classList.contains('ytp-rollup-mode')
         if (isRoll) {
-          cpContent.innerHTML = ''
+          getPickle = cpContent.querySelectorAll('.pickle').length
+          cpContent.querySelectorAll('.pickle').forEach((itm, i) => {
+            if (i < (getPickle)) {
+              itm.remove()
+            }
+          })
+          cpContent.querySelectorAll('.onion').forEach((itm, i) => {
+            itm.remove()
 
+          })
         }
-        //          cpContent.innerHTML = firstPart + wrappedText
-
-        //         end
       }
     }
   }
