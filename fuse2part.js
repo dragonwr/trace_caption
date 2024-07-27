@@ -54,10 +54,13 @@ var mutationCallback = function(mutationsList) {
 
         var wrappedText = [];
         remaining = ctext.length
-        for (var j = latestText.split(' ').length; j < remaining; j++) {
-          wrappedText.push(`<span class="onion">${ctext[j]}</span>`);
-        }
+        if (remaining != 0) {
+          for (var j = latestText.split(' ').length; j < remaining; j++) {
+            wrappedText.push(`<span class="onion">${ctext[j]}</span>`);
+          }
         remaining--;
+          
+        }
         wrappedText = wrappedText.join(' ');
         // Log the inner text of the last child
 
@@ -72,17 +75,16 @@ var mutationCallback = function(mutationsList) {
         document.querySelectorAll('.onion').forEach(element => element.remove());
         cpContent.appendChild(lp)
         isRoll = document.querySelector('#caption-window-1').classList.contains('ytp-rollup-mode')
-        if (isRoll) {
+        cpContentHeight = document.querySelector('#cp_content').clientHeight
+        if (isRoll && cpContentHeight > 40) {
+          isRoll = false
           getPickle = cpContent.querySelectorAll('.pickle').length
           cpContent.querySelectorAll('.pickle').forEach((itm, i) => {
             if (i < (getPickle)) {
               itm.remove()
             }
           })
-          cpContent.querySelectorAll('.onion').forEach((itm, i) => {
-            itm.remove()
 
-          })
         }
       }
     }
