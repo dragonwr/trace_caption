@@ -46,8 +46,11 @@ var mutationCallback = function(mutationsList) {
         // Get the text content of the last caption line
         var latestText = lastCaptionLine.innerText || lastCaptionLine.textContent;
         var firstPart = []
-        for (var j = 0; j < latestText.split(' ').length; j++) {
-          firstPart.push(`<span class='pickle'>${latestText.split(' ')[j]}</span>`)
+        enLong = latestText.split(' ').length
+        if (enLong != 0) {
+          for (var j = 0; j < latestText.split(' ').length; j++) {
+            firstPart.push(`<span class='pickle'>${latestText.split(' ')[j]}</span>`)
+          }
         }
         firstPart = firstPart.join(' ')
         var ctext = document.querySelector('#en_caption')?.textContent.split(' ') || 'Element not found';
@@ -58,32 +61,49 @@ var mutationCallback = function(mutationsList) {
           for (var j = latestText.split(' ').length; j < remaining; j++) {
             wrappedText.push(`<span class="onion">${ctext[j]}</span>`);
           }
-        remaining--;
-          
         }
+        remaining--;
         wrappedText = wrappedText.join(' ');
         // Log the inner text of the last child
 
-        let lp = document.createElement('span');
-        lp.innerHTML = wrappedText
 
         let fp = document.createElement('span')
         fp.classList.add('pickle')
         fp.innerHTML = latestText.split(' ')[latestText.split(' ').length - 1]
 
+        let lp = document.createElement('span');
+        lp.classList.add('onion')
+        lp.innerHTML = wrappedText
+
+      
+
         cpContent.appendChild(fp)
         document.querySelectorAll('.onion').forEach(element => element.remove());
         cpContent.appendChild(lp)
+
+
         isRoll = document.querySelector('#caption-window-1').classList.contains('ytp-rollup-mode')
-        cpContentHeight = document.querySelector('#cp_content').clientHeight
-        if (isRoll && cpContentHeight > 40) {
+        cpContentHeight = cpContent.clientHeight
+        if (isRoll && cpContentHeight > 42) {
+
           isRoll = false
           getPickle = cpContent.querySelectorAll('.pickle').length
           cpContent.querySelectorAll('.pickle').forEach((itm, i) => {
-            if (i < (getPickle)) {
+            if (i < getPickle - 1) {
               itm.remove()
             }
           })
+
+          var spanBan = cpContent.querySelectorAll('span');
+
+          // Loop through each span
+          spanBan.forEach(function(span) {
+            // Check if the span is empty or contains only whitespace
+            if (!span.textContent.trim()) {
+              // Remove the empty span
+              span.remove();
+            }
+          });
 
         }
       }
