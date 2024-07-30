@@ -1,5 +1,5 @@
-cpContent.innerHTML = ''
-off()
+//cpContent.innerHTML = ''
+//off()
 var captionControl2Parent = document.getElementById('ytd-player').parentElement;
 
 var cpElement = captionControl2Parent.querySelector("#cp");
@@ -7,7 +7,7 @@ if (!cpElement) {
   var cpDiv = document.createElement("div");
   cpDiv.id = "cp";
 
-  var cpContent = document.createElement("p");
+  var cpContent = document.createElement("span");
   cpContent.id = "cp_content";
   cpDiv.appendChild(cpContent);
   captionControl2Parent.insertAdjacentElement('afterbegin', cpDiv);
@@ -79,17 +79,17 @@ var mutationCallback = function(mutationsList) {
 
         cpContent.appendChild(fp)
         document.querySelectorAll('.onion').forEach(element => element.remove());
-        cpContent.appendChild(lp)
+        cp.appendChild(lp)
 
 
         isRoll = document.querySelector('#caption-window-1').classList.contains('ytp-rollup-mode')
         cpContentHeight = cpContent.clientHeight
-        if (isRoll && cpContentHeight > 42) {
+        if (isRoll) {
 
-          isRoll = false
+//           isRoll = false
           getPickle = cpContent.querySelectorAll('.pickle').length
           cpContent.querySelectorAll('.pickle').forEach((itm, i) => {
-            if (i < getPickle - 1) {
+            if (i < getPickle-1 ) {
               itm.remove()
             }
           })
