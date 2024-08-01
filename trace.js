@@ -12,24 +12,33 @@ var observerConfig = {
 // Mutation callback function
 var mutationCallback = function(mutationsList) {
   for (var i = 0; i < mutationsList.length; i++) {
+
     var mutation = mutationsList[i];
     if (mutation.type === 'childList' || mutation.type === 'characterData') {
+      quick = false;
       updateCaptions();
+
     }
   }
 };
 
 function updateCaptions() {
-  var enCaption = document.querySelector('#en_caption');
-  var captionsContainer = document.querySelector('.captions-text');
-  var captionLines = captionsContainer.children;
-  var lastCaptionLine = captionLines[captionLines.length - 1];
+  enCaption = document.querySelector('#en_caption');
+  captionsContainer = document.querySelector('.captions-text');
+  captionLines = captionsContainer.children;
+  lastCaptionLine = captionLines[captionLines.length - 1];
 
   if (!enCaption || !lastCaptionLine) return;
 
-  var currentEnCaption = enCaption.innerText.split(' ');
+  currentEnCaption = enCaption.innerText.split(' ');
   var latestVisualText = lastCaptionLine.innerText.split(' ')
   var highlightIndex = latestVisualText.length;
+
+  isRoll = document.querySelector('#caption-window-1').classList.contains('ytp-rollup-mode')
+  if (isRoll && !quick) {
+    updateCaptions();
+    quick = false;
+  }
 
   if (currentEnCaption !== lastEnCaption) {
     updateCpContent(currentEnCaption);
@@ -39,6 +48,7 @@ function updateCaptions() {
 
   highlightUpToIndex(highlightIndex);
 }
+
 
 function updateCpContent(text) {
   if (!cpContent) {
@@ -89,9 +99,9 @@ function highlightUpToIndex(index) {
 }
 
 // Create and start the observer
-var captionsContainer = document.querySelector('.captions-text');
-var observer = new MutationObserver(mutationCallback);
-observer.observe(captionsContainer, observerConfig);
+// var captionsContainer = document.querySelector('.captions-text');
+// var observer = new MutationObserver(mutationCallback);
+// observer.observe(captionsContainer, observerConfig);
 
 // Function to stop the observer
 function off() {
@@ -109,4 +119,47 @@ if (!document.getElementById('cp_content')) {
   cpDiv.appendChild(cpContent);
   var captionControl2Parent = document.getElementById('ytd-player').parentElement;
   captionControl2Parent.insertAdjacentElement('afterbegin', cpDiv);
+}
+
+startObserver();
+
+// Set up periodic checks
+setInterval(checkObserver, 500); // Check every 5 seconds
+// setInterval(()=>{
+//     captionsContainer = document.querySelector('.captions-text');
+//     captionLines = captionsContainer.children;
+//    lastCaptionLine = captionLines[captionLines.length - 1];
+//   latestVisualText=lastCaptionLine.innerText.split(' ')
+//   var highlightIndex = latestVisualText.length;
+//      if(highlightIndex==currentEnCaption.length+1){
+//     currentEnCaption = enCaption.innerText.split(' ');
+//        cpContent.innerHTML=''
+//     updateCpContent(currentEnCaption);
+//     console.log('euqal')
+//   }
+// },100)
+function startObserver() {
+  var captionsContainer = document.querySelector('.captions-text');
+  if (captionsContainer) {
+    observer = new MutationObserver(mutationCallback);
+    observer.observe(captionsContainer, observerConfig);
+    console.log('MutationObserver started');
+  } else {
+    console.log('Captions container not found. Retrying in 1 second...');
+    setTimeout(startObserver, 1000);
+  }
+}
+
+function checkObserver() {
+
+
+
+  var currentTime = Date.now();
+  if (currentTime - lastUpdateTime > 500) { // 5 seconds threshold
+    console.log('No updates for 5 seconds. Restarting observer...');
+    if (observer) {
+      observer.disconnect();
+    }
+    startObserver();
+  }
 }
