@@ -1,6 +1,5 @@
-clearCaptionContent()
+// clearCaptionContent()
 off()
-cpContent = document.getElementById('cp_content');
 
 var off = function() {
   observer.disconnect();
@@ -81,15 +80,29 @@ var updateCaptionDisplay = function(latestText, isRollupMode) {
   }
 
   // 检查是否需要触发飞出动画
-  if (cpContent.children.length >= existingCaptionText.length / 2) {
-    animateFlyOut(cpContent.children);
+  if (cpContent.children.length >= existingCaptionText.length / 2 - 1) {
+    //     animateFlyOut(cpContent.children);
+    fadeOutWords(cpContent.children)
     return
+  }
+
+  function fadeOutWords(elements) {
+    Array.from(elements).forEach((el, index) => {
+      el.style.setProperty('--fade-delay', `${index * 150}ms`);
+
+      // Remove element after animation
+      if (index < elements.length / 2 - 2) {
+        el.classList.add('fade-out');
+        el.addEventListener('animationend', () => el.remove());
+      }
+    });
+
   }
 
   function animateFlyOut(elements) {
     Array.from(elements).forEach((el, index) => {
       setTimeout(() => {
-        const angle = Math.random() * Math.PI * 2; // 随机角度
+        const angle = Math.random() * Math.PI * .2; // 随机角度
         const distance = 50 + Math.random() * 100; // 随机距离
         const duration = 0.195 + Math.random() * 0.25; // 随机持续时间
 
@@ -102,7 +115,7 @@ var updateCaptionDisplay = function(latestText, isRollupMode) {
         el.addEventListener('animationend', () => el.remove());
       }, index * 110); // 每个元素延迟一点开始动画
 
-      if (index < elements.length/2-3) {
+      if (index < elements.length / 2 - 3) {
         el.remove();
       }
     });
@@ -150,6 +163,8 @@ var observer = new MutationObserver(handleCaptionMutation);
 
 initializeCaptionElement();
 observer.observe(captionsContainer, observerConfig);
+cpContent = document.getElementById('cp_content');
+
 var clearCaptionContent = function() {
   cpContent.innerHTML = '';
 }
