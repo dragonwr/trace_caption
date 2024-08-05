@@ -1,8 +1,6 @@
-// off()
+clearCaptionContent()
+off()
 cpContent = document.getElementById('cp_content');
-var clearCaptionContent = function() {
-  cp_content.innerHTML = '';
-}
 
 var off = function() {
   observer.disconnect();
@@ -67,16 +65,6 @@ var updateCaptionDisplay = function(latestText, isRollupMode) {
 
   wrappedText = wrappedText.join(' ');
 
-  //   var wrappedText = [];
-  //   remaining = existingCaptionText.length
-  //   if (remaining != 0) {
-  //     for (var j = latestText.split(' ').length; j < remaining; j++) {
-  //       wrappedText.push(`<span class="onion">${existingCaptionText[j]}</span>`);
-  //     }
-  //   }
-  //   remaining--;
-  //   wrappedText = wrappedText.join(' ');
-
   var tempDiv = document.createElement('span');
   tempDiv.innerHTML = wrappedCurrentWords
 
@@ -88,9 +76,46 @@ var updateCaptionDisplay = function(latestText, isRollupMode) {
   document.querySelectorAll('.onion').forEach(element => element.remove());
   cpContent.append(remained)
 
+  if (!cpContent) {
+    cpContent = document.getElementById('cp_content');
+  }
+
+  // 检查是否需要触发飞出动画
+  if (cpContent.children.length >= existingCaptionText.length / 2) {
+    animateFlyOut(cpContent.children);
+    return
+  }
+
+  function animateFlyOut(elements) {
+    Array.from(elements).forEach((el, index) => {
+      setTimeout(() => {
+        const angle = Math.random() * Math.PI * 2; // 随机角度
+        const distance = 50 + Math.random() * 100; // 随机距离
+        const duration = 0.195 + Math.random() * 0.25; // 随机持续时间
+
+        el.style.setProperty('--fly-x', `${Math.cos(angle) * distance}px`);
+        el.style.setProperty('--fly-y', `${Math.sin(angle) * distance}px`);
+        el.style.setProperty('--fly-duration', `${duration}s`);
+        el.classList.add('fly-out');
+
+        // 动画结束后移除元素
+        el.addEventListener('animationend', () => el.remove());
+      }, index * 110); // 每个元素延迟一点开始动画
+
+      if (index < elements.length/2-3) {
+        el.remove();
+      }
+    });
+
+
+    //           trimOldCaptions(cpContent);
+
+  }
+
 
   if (isRollupMode) {
-    trimOldCaptions(cpContent);
+    //     trimOldCaptions(cpContent);
+    //     trimOldCaptionsMini(cpContent)
   }
 };
 
@@ -98,12 +123,13 @@ var wrapWordsInSpan = function(words, className) {
   return '<span class="' + className + '">' + words[words.length - 1] + '</span>'
 };
 
+
 var trimOldCaptions = function(cpContent) {
   var pickleElements = cpContent.querySelectorAll('.pickle');
   var pickleCount = pickleElements.length;
 
   pickleElements.forEach((element, index) => {
-    if (index < pickleCount - 3) {
+    if (index < pickleCount - 2) {
       element.remove();
     }
   });
@@ -122,6 +148,8 @@ var removeEmptySpans = function(container) {
 
 var observer = new MutationObserver(handleCaptionMutation);
 
-clearCaptionContent();
 initializeCaptionElement();
 observer.observe(captionsContainer, observerConfig);
+var clearCaptionContent = function() {
+  cpContent.innerHTML = '';
+}
