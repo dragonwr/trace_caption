@@ -1,4 +1,4 @@
-// clearCaptionContent()
+clearCaptionContent()
 off()
 
 var off = function() {
@@ -71,8 +71,16 @@ var updateCaptionDisplay = function(latestText, isRollupMode) {
   var remained = document.createElement('span')
   remained.innerHTML = wrappedText
 
-  cpContent.append(tempDiv.firstChild)
-  document.querySelectorAll('.onion').forEach(element => element.remove());
+  cpContent.append(wrappedCurrentWords)
+  // Select all elements with the class 'onion'
+  document.querySelectorAll('.onion').forEach(element => {
+    // Remove the parent of the element
+    if (element.parentNode) {
+      element.parentNode.remove();
+    }
+  });
+
+  //   document.querySelectorAll('.onion').forEach(element => element.remove());
   cpContent.append(remained)
 
   if (!cpContent) {
@@ -131,25 +139,29 @@ var updateCaptionDisplay = function(latestText, isRollupMode) {
     //     trimOldCaptionsMini(cpContent)
   }
 };
+ 
 
 var wrapWordsInSpan = function(words, className) {
-  return '<span class="' + className + '">' + words[words.length - 1] + '</span>'
+  var greenPickle = document.createElement('span')
+  greenPickle.className = className
+  greenPickle.textContent = words[words.length - 1]
+  return greenPickle
+  //   return '<span class="' + className + '">' + words[words.length - 1] + '</span>'
 };
-
-
 var trimOldCaptions = function(cpContent) {
   var pickleElements = cpContent.querySelectorAll('.pickle');
   var pickleCount = pickleElements.length;
 
-  pickleElements.forEach((element, index) => {
-    if (index < pickleCount - 2) {
-      element.remove();
+  for (var i = 0; i < pickleCount; i++) {
+    if (i < pickleCount - 2 && pickleElements[i].textContent.trim() === '') {
+      pickleElements[i].remove();
     }
-  });
+  }
 
   removeEmptySpans(cpContent);
 };
 
+ 
 var removeEmptySpans = function(container) {
   var spans = container.querySelectorAll('span');
   spans.forEach(function(span) {
